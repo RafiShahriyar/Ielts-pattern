@@ -1,0 +1,57 @@
+{
+  "name": "ielts-pattern-bank",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Quick-reference bank of IELTS Writing Task 1 data-reporting sentence patterns",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k -n NEXT,ELECTRON -c cyan,magenta \"next dev -p 3000\" \"wait-on tcp:localhost:3000 && cross-env NODE_ENV=development electron .\"",
+    "dev:next": "next dev -p 3000",
+    "dev:electron": "cross-env NODE_ENV=development electron .",
+    "build": "next build",
+    "start": "npm run build && electron .",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
+    "electron": "^44.2.0",
+    "electron-builder": "^26.15.3",
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^5.9.0",
+    "wait-on": "^9.1.0"
+  },
+  "build": {
+    "appId": "com.rafi.ielts-pattern-bank",
+    "productName": "IELTS Pattern Bank",
+    "files": [
+      "electron/**/*",
+      "out/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "npmRebuild": false
+  }
+}

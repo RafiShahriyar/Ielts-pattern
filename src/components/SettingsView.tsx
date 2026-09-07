@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { THEMES, type ThemeId } from '@/lib/theme';
+import { THEME_GROUPS, themesInGroup, type ThemeId } from '@/lib/theme';
 
 interface Props {
   theme: ThemeId;
@@ -37,27 +37,32 @@ export default function SettingsView({ theme, onThemeChange }: Props) {
         <h2 className="settings-title">Theme</h2>
         <p className="section-note">Applies immediately and is remembered between launches.</p>
 
-        <div className="theme-grid">
-          {THEMES.map((option) => (
-            <button
-              key={option.id}
-              className={option.id === theme ? 'theme-option active' : 'theme-option'}
-              onClick={() => onThemeChange(option.id)}
-              aria-pressed={option.id === theme}
-            >
-              <span className="theme-swatch" aria-hidden="true">
-                {option.swatch.map((colour, i) => (
-                  <span key={i} style={{ background: colour }} />
-                ))}
-              </span>
-              <span className="theme-text">
-                <span className="theme-label">{option.label}</span>
-                <span className="theme-hint">{option.hint}</span>
-              </span>
-              {option.id === theme && <span className="theme-check">✓</span>}
-            </button>
-          ))}
-        </div>
+        {THEME_GROUPS.map((group) => (
+          <div className="theme-group" key={group.id}>
+            <div className="theme-group-label">{group.label}</div>
+            <div className="theme-grid">
+              {themesInGroup(group.id).map((option) => (
+                <button
+                  key={option.id}
+                  className={option.id === theme ? 'theme-option active' : 'theme-option'}
+                  onClick={() => onThemeChange(option.id)}
+                  aria-pressed={option.id === theme}
+                >
+                  <span className="theme-swatch" aria-hidden="true">
+                    {option.swatch.map((colour, i) => (
+                      <span key={i} style={{ background: colour }} />
+                    ))}
+                  </span>
+                  <span className="theme-text">
+                    <span className="theme-label">{option.label}</span>
+                    <span className="theme-hint">{option.hint}</span>
+                  </span>
+                  {option.id === theme && <span className="theme-check">✓</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="card settings-card">

@@ -74,13 +74,22 @@ back on `body` undoes that.
 lifting it into the shell. A page that renders nothing there leaves the rail
 empty and `.sidebar:empty { display: none }` collapses it.
 
-**7. Themes.** Four options; `system` is represented by the *absence* of
-`data-theme` on `<html>`, so the `prefers-color-scheme` rules in `globals.css`
-take over. The choice is stored in the database, read synchronously in preload,
-and applied by an inline script in `src/app/layout.tsx` before first paint. All
-colours are CSS custom properties defined once at the top of `globals.css` — a
-new theme is one more `:root[data-theme='...']` block plus an entry in
-`src/lib/theme.ts`.
+**7. Themes.** Seven options, grouped Automatic / Light / Dark in Settings.
+`system` is represented by the *absence* of `data-theme` on `<html>`, so the
+`prefers-color-scheme` rules in `globals.css` take over. The choice is stored in
+the database, read synchronously in preload, and applied by an inline script in
+`src/app/layout.tsx` before first paint. All colours are CSS custom properties
+defined once at the top of `globals.css`. Adding a theme means three edits, and
+missing the third leaves the window frame flashing the wrong colour on launch:
+a `:root[data-theme='...']` block in `globals.css`, an entry in `THEMES` in
+`src/lib/theme.ts`, and its background in `THEME_BG` in `electron/main.js`.
+
+**8. Jumping to a card scrolls `.scroll`, not the window.** The Writing sidebar
+nests each section's question types under it and scrolls to the matching card.
+`scrollIntoView` is deliberately not used: it resolves offsets awkwardly in a
+nested scroller, and its smooth animation is skipped outright when the window is
+occluded, so the jump silently does nothing. `jumpTo` in `WritingView` measures
+against the container and snaps to the target if the animation has not landed.
 
 ## Conventions
 

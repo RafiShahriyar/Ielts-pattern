@@ -84,11 +84,18 @@ sentences keep a readable line length.
 
 ## Themes
 
-Four options: **System** (follows Windows), **Light**, **Dark**, and
-**Black & Red**. The choice is saved in the database and applied before the
-first frame is painted, so there is no flash on launch. Colours are defined once
-as CSS custom properties at the top of `src/app/globals.css` — a new theme is
-one more `:root[data-theme='...']` block plus an entry in `src/lib/theme.ts`.
+Seven, grouped in Settings as Automatic / Light / Dark:
+
+- **Automatic** — System, follows the Windows light/dark setting
+- **Light** — Light
+- **Dark** — Dark, Black & Red, Black & Purple, Black & Green, Black & Gold
+
+The choice is saved in the database and applied before the first frame is
+painted, so there is no flash on launch. Colours are defined once as CSS custom
+properties at the top of `src/app/globals.css`. Adding a theme is three edits:
+a `:root[data-theme='...']` block there, an entry in `THEMES` in
+`src/lib/theme.ts` (with its `group`), and its background in `THEME_BG` in
+`electron/main.js` so the native window frame matches.
 
 ## Where the data lives
 

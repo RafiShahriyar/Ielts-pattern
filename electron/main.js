@@ -17,11 +17,19 @@ const isDev = process.env.NODE_ENV === 'development';
 const DEV_URL = 'http://localhost:3000';
 const OUT_DIR = path.join(__dirname, '..', 'out');
 
-const THEMES = new Set(['system', 'light', 'dark', 'crimson']);
-
 // Kept in step with the --bg token of each theme in globals.css so the native
 // window frame paints the right colour before the renderer draws anything.
-const THEME_BG = { light: '#f6f7f9', dark: '#16181c', crimson: '#0a0a0c' };
+const THEME_BG = {
+  light: '#f6f7f9',
+  dark: '#16181c',
+  crimson: '#0a0a0c',
+  violet: '#0a0a0c',
+  emerald: '#0a0a0c',
+  gold: '#0a0a0c',
+};
+
+// Derived, so adding a theme above is the only edit needed here.
+const THEMES = new Set(['system', ...Object.keys(THEME_BG)]);
 
 
 let dbPath;

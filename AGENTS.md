@@ -105,6 +105,16 @@ queries, but `migrate()` deliberately does not `DROP` the column, because real
 entries were written into it. `COLUMNS` in `db.js` lists what is selected, so
 the dead column never reaches the renderer.
 
+**11. Formatting a card does not make it editable.** `SelectionFormatter`
+watches the selection and serves two kinds of target: `[data-rich-edit]` (the
+live contenteditable in the form) and `[data-rich-view]` (a card field, which
+stays read-only). For a card it converts the selection to plain character
+offsets, applies the format to the *stored* markup with `applyFormat`, and
+saves — the DOM is never edited in place, so a stray keypress cannot alter an
+entry. Both the rendered card and the stored markup contain the same text in the
+same order, which is what makes those offsets interchangeable; keep it that way
+if you add anything to the render path.
+
 ## Conventions
 
 - **All SQL lives in `electron/db.js`.** Nothing else touches the database.

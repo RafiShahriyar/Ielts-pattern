@@ -124,7 +124,8 @@ them back on the next launch. That same table holds the theme setting.
 | `src/components/SettingsView.tsx` | Themes, storage, shortcuts                        |
 | `src/lib/highlight.tsx`    | Marks numbers/percentages in examples and `[slots]` in templates |
 | `src/lib/richtext.tsx`     | Sanitises editor output and renders stored markup        |
-| `src/components/RichTextEditor.tsx` | Contenteditable field with the format toolbar   |
+| `src/components/RichTextEditor.tsx` | Contenteditable field used by the edit form    |
+| `src/components/SelectionFormatter.tsx` | The bar that appears over a selection      |
 | `src/lib/theme.ts`         | Theme list and the `data-theme` switch                   |
 | `src/lib/slots.ts`         | DOM id for the sidebar portal target                     |
 
@@ -134,15 +135,26 @@ integration is off and the renderer is sandboxed.
 
 ## Formatting
 
-Example and notes support bold (`Ctrl+B`), underline (`Ctrl+U`) and highlight
-(`Ctrl+Shift+H`, or the toolbar button). Each field is stored twice: the plain
-text in `example` / `notes`, and the marked-up version in `example_html` /
-`notes_html`. Search runs against the plain text, so markup never turns up in
-results, and a row written before formatting existed still renders from its
-plain text.
+Select any text and a small bar appears over it with **bold**, underline, four
+highlight colours (yellow, green, blue, pink) and remove-formatting. It works in
+two places:
 
-Highlight is tinted from the theme accent with `color-mix`, so it follows
-whichever of the seven themes is active without needing its own token in each.
+- inside the edit form, and
+- **straight on a card**, without opening the edit form at all — the change is
+  saved as soon as you pick a format.
+
+Cards are not `contenteditable`. A selection on a card is converted to plain
+character offsets, the format is applied to the stored markup at those offsets,
+and the entry is saved. That keeps stray keystrokes from ever editing an entry
+by accident.
+
+Each field is stored twice: the plain text in `example` / `notes`, and the
+marked-up version in `example_html` / `notes_html`. Search runs against the plain
+text, so markup never turns up in results, and a row written before formatting
+existed still renders from its plain text.
+
+Highlight colours are translucent tints, so the same four read correctly on the
+light theme and on the near-black ones.
 
 Search is a case-insensitive `LIKE` across name, example and notes, with `%` and
 `_` escaped so they match literally.

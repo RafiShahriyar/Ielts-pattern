@@ -707,13 +707,36 @@ mark.num {
   font-variant-numeric: tabular-nums;
 }
 
-/* Manual highlight, tinted from the theme accent so it works on all seven
-   without needing its own token in each. */
-mark.hl {
-  background: color-mix(in srgb, var(--accent) 26%, transparent);
+/* Manual highlights. Each is a translucent tint rather than a solid fill, so the
+   same four colours stay legible on the light theme and the near-black ones. */
+mark.hl,
+mark.hl-yellow,
+mark.hl-green,
+mark.hl-blue,
+mark.hl-pink {
   color: inherit;
   padding: 0 2px;
   border-radius: 3px;
+}
+
+mark.hl {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+mark.hl-yellow {
+  background: color-mix(in srgb, #ffd54a 38%, transparent);
+}
+
+mark.hl-green {
+  background: color-mix(in srgb, #4ade80 34%, transparent);
+}
+
+mark.hl-blue {
+  background: color-mix(in srgb, #60a5fa 36%, transparent);
+}
+
+mark.hl-pink {
+  background: color-mix(in srgb, #f472b6 34%, transparent);
 }
 
 mark.slot {
@@ -863,6 +886,79 @@ mark.slot {
   font-size: 13px;
 }
 
+/* ---------- selection formatting bar ---------- */
+
+/* Sits above the modal, since it serves the editor inside it as well. */
+.sel-bar {
+  position: fixed;
+  z-index: 200;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  user-select: none;
+}
+
+.sel-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  width: 26px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sel-btn:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.sel-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin: 0 2px;
+}
+
+.sel-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid var(--border-strong);
+  padding: 0;
+}
+
+.sel-swatch:hover {
+  border-color: var(--text-faint);
+  transform: scale(1.08);
+}
+
+.sel-swatch.hl-yellow {
+  background: color-mix(in srgb, #ffd54a 70%, transparent);
+}
+
+.sel-swatch.hl-green {
+  background: color-mix(in srgb, #4ade80 66%, transparent);
+}
+
+.sel-swatch.hl-blue {
+  background: color-mix(in srgb, #60a5fa 68%, transparent);
+}
+
+.sel-swatch.hl-pink {
+  background: color-mix(in srgb, #f472b6 66%, transparent);
+}
+
 /* ---------- empty / error ---------- */
 
 .empty-state {
@@ -952,50 +1048,10 @@ mark.slot {
 
 /* ---------- rich text editor ---------- */
 
-.editor {
+.editor-area {
   border: 1px solid var(--border-strong);
   border-radius: 8px;
   background: var(--bg);
-  overflow: hidden;
-}
-
-.editor:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-  background: var(--surface);
-}
-
-.editor-toolbar {
-  display: flex;
-  gap: 2px;
-  padding: 4px 5px;
-  border-bottom: 1px solid var(--border);
-}
-
-.fmt-btn {
-  border: 0;
-  background: transparent;
-  color: var(--text-dim);
-  width: 26px;
-  height: 24px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fmt-btn:hover {
-  background: var(--accent-soft);
-  color: var(--text);
-}
-
-.fmt-btn mark.hl {
-  padding: 0 3px;
-}
-
-.editor-area {
   padding: 8px 10px;
   outline: none;
   font-size: 14px;
@@ -1005,9 +1061,10 @@ mark.slot {
   word-break: break-word;
 }
 
-.editor-area.mono {
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 12.8px;
+.editor-area:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: var(--surface);
 }
 
 /* contenteditable has no placeholder of its own. */

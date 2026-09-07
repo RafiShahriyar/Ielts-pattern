@@ -64,13 +64,17 @@ export default function PatternCard({ item, onEdit, onDelete }: Props) {
 
       <div className="field">
         <div className="label">Example</div>
-        <div className="example-text">{example}</div>
+        <div className="example-text" data-rich-view="" data-entry={item.id} data-field="example">
+          {example}
+        </div>
       </div>
 
       {item.notes && (
         <div className="field">
           <div className="label">Notes</div>
-          <div className="notes-text">{notes}</div>
+          <div className="notes-text" data-rich-view="" data-entry={item.id} data-field="notes">
+            {notes}
+          </div>
         </div>
       )}
     </article>

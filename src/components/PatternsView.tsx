@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import PatternCard from '@/components/PatternCard';
 import PatternForm from '@/components/PatternForm';
+import SelectionFormatter, { type EntryField } from '@/components/SelectionFormatter';
+import { applyFormat, richToText, textToHtml, type FormatAction } from '@/lib/richtext';
 import type { Pattern, PatternInput } from '@/lib/types';
 import { SIDEBAR_ID } from '@/lib/slots';
 
@@ -88,6 +90,36 @@ export default function PatternsView() {
       // Drop the filter if that was the last entry in the category.
       const cats = await window.api.categories();
       if (category && !cats.includes(category)) setCategory('');
+      await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  /** Formatting applied straight on a card, without opening the edit form. */
+  async function formatEntry(
+    id: number,
+    field: EntryField,
+    start: number,
+    end: number,
+    action: FormatAction
+  ) {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    const htmlKey = field === 'example' ? 'example_html' : 'notes_html';
+    const source = item[htmlKey] || textToHtml(item[field]);
+    const next = applyFormat(source, start, end, action);
+    if (next === source) return;
+
+    try {
+      await window.api.update(id, {
+        category: item.category,
+        example: field === 'example' ? richToText(next) : item.example,
+        example_html: field === 'example' ? next : item.example_html,
+        notes: field === 'notes' ? richToText(next) : item.notes,
+        notes_html: field === 'notes' ? next : item.notes_html,
+      });
       await reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -185,6 +217,8 @@ export default function PatternsView() {
       <div className="footer">
         <span>Ctrl+K search · Ctrl+N new · Ctrl+Enter save · Esc close</span>
       </div>
+
+      <SelectionFormatter onFormatEntry={formatEntry} />
 
       {editor && (
         <PatternForm

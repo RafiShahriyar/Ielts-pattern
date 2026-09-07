@@ -595,6 +595,43 @@ select:focus {
   font-size: 13px;
 }
 
+/* ---------- vocab ---------- */
+
+.vocab-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.vocab-item {
+  padding: 11px 0;
+  border-top: 1px solid var(--border);
+}
+
+.vocab-item:first-child {
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.vocab-word {
+  font-weight: 650;
+  font-size: 13.5px;
+  color: var(--accent);
+  margin-bottom: 3px;
+}
+
+.vocab-use {
+  font-size: 12.8px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.vocab-example {
+  font-size: 13.5px;
+  line-height: 1.55;
+  padding-left: 11px;
+  border-left: 2px solid var(--border-strong);
+}
+
 /* ---------- cards ---------- */
 
 .list {

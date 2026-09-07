@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import NavBar, { type PageId } from '@/components/NavBar';
 import PatternsView from '@/components/PatternsView';
 import WritingView from '@/components/WritingView';
+import VocabView from '@/components/VocabView';
 import SettingsView from '@/components/SettingsView';
 import { applyTheme, isThemeId, type ThemeId } from '@/lib/theme';
 import { SIDEBAR_ID } from '@/lib/slots';
@@ -41,6 +42,7 @@ export default function Home() {
           <div className="app">
             {page === 'patterns' && <PatternsView />}
             {page === 'writing' && <WritingView />}
+            {page === 'vocab' && <VocabView />}
             {page === 'settings' && <SettingsView theme={theme} onThemeChange={changeTheme} />}
           </div>
         </main>

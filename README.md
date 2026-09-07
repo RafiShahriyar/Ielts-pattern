@@ -68,7 +68,12 @@ top bar instead.
   Academic (bar chart, line graph, pie chart, table, process, map, mixed),
   Task 2 essay types, General Training letters, and paragraph structures. The
   section list is in the sidebar; the content lives in `src/lib/writing-data.ts`.
-- **Settings** — theme picker, database location, shortcut list.
+- **Vocab** — a reference of linking words (contrast, concession, cause, result,
+  addition, sequence, examples, similarity, emphasis, summary) and Task 1
+  language (trend verbs, degree adverbs, proportions). Each entry carries the
+  grammar note that actually costs marks — what `despite` may be followed by,
+  why a comma before `however` is a splice — plus an example. Searchable from
+  the sidebar; content lives in `src/lib/vocab-data.ts`.
 
 ## Layout
 
@@ -128,6 +133,8 @@ them back on the next launch. That same table holds the theme setting.
 | `src/components/SelectionFormatter.tsx` | The bar that appears over a selection      |
 | `src/lib/theme.ts`         | Theme list and the `data-theme` switch                   |
 | `src/lib/slots.ts`         | DOM id for the sidebar portal target                     |
+| `src/lib/scroll.ts`        | Jump-to-card scrolling, shared by Writing and Vocab       |
+| `src/components/VocabView.tsx` | Linking words and Task 1 vocabulary                  |
 
 The renderer has no database access of its own: it can only call the methods
 exposed in `preload.js`, each of which round-trips to `electron/db.js`. Node
@@ -169,7 +176,7 @@ the `app://` protocol serves.
 
 ## Shortcuts
 
-- `Ctrl+K` — focus search (Patterns page)
+- `Ctrl+K` — focus search (Patterns and Vocab pages)
 - `Ctrl+N` — new pattern
 - `Ctrl+Enter` — save the open form
 - `Esc` — close the form

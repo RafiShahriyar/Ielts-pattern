@@ -84,12 +84,12 @@ missing the third leaves the window frame flashing the wrong colour on launch:
 a `:root[data-theme='...']` block in `globals.css`, an entry in `THEMES` in
 `src/lib/theme.ts`, and its background in `THEME_BG` in `electron/main.js`.
 
-**8. Jumping to a card scrolls `.scroll`, not the window.** The Writing sidebar
-nests each section's question types under it and scrolls to the matching card.
+**8. Jumping to a card scrolls `.scroll`, not the window.** `jumpToCard` in
+`src/lib/scroll.ts` does this for both the Writing and Vocab sidebars.
 `scrollIntoView` is deliberately not used: it resolves offsets awkwardly in a
 nested scroller, and its smooth animation is skipped outright when the window is
-occluded, so the jump silently does nothing. `jumpTo` in `WritingView` measures
-against the container and snaps to the target if the animation has not landed.
+occluded, so the jump silently does nothing. The helper measures against the
+container and snaps to the target if the animation has not landed.
 
 **9. Entry text is stored twice.** `example`/`notes` hold plain text and
 `example_html`/`notes_html` the marked-up version. Search matches the plain

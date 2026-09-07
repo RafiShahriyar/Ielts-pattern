@@ -2,11 +2,12 @@
 
 import WindowControls from '@/components/WindowControls';
 
-export type PageId = 'patterns' | 'writing' | 'settings';
+export type PageId = 'patterns' | 'writing' | 'vocab' | 'settings';
 
 const TABS: { id: PageId; label: string }[] = [
   { id: 'patterns', label: 'Patterns' },
   { id: 'writing', label: 'Writing' },
+  { id: 'vocab', label: 'Vocab' },
   { id: 'settings', label: 'Settings' },
 ];
 

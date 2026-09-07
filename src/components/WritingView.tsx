@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { highlight } from '@/lib/highlight';
+import { jumpToCard, scrollContentToTop } from '@/lib/scroll';
 import { SIDEBAR_ID } from '@/lib/slots';
 import { STRUCTURES, WRITING_SECTIONS } from '@/lib/writing-data';
 
 const STRUCTURES_ID = 'structures';
-
-/** Breathing room left above a card when jumping to it. */
-const JUMP_GAP = 14;
 
 /** Stable DOM id for a question-type card, so the sidebar can scroll to it. */
 function cardId(sectionId: string, name: string): string {
@@ -35,30 +33,12 @@ export default function WritingView() {
     setActive(id);
     setJumped('');
     // Back to the top of the section rather than wherever the last one was.
-    document.querySelector('.scroll')?.scrollTo({ top: 0, behavior: 'auto' });
+    scrollContentToTop();
   }
 
   function jumpTo(id: string) {
     setJumped(id);
-
-    const el = document.getElementById(id);
-    const scroller = document.querySelector<HTMLElement>('.scroll');
-    if (!el || !scroller) return;
-
-    // Measured against the scroll container rather than using scrollIntoView,
-    // which resolves its offset differently in a nested scroller.
-    const delta = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-    const max = scroller.scrollHeight - scroller.clientHeight;
-    const target = Math.max(0, Math.min(scroller.scrollTop + delta - JUMP_GAP, max));
-
-    scroller.scrollTo({ top: target, behavior: 'smooth' });
-
-    // A smooth scroll is a compositor animation and is skipped outright when the
-    // window is occluded, which leaves the jump silently doing nothing. Snap to
-    // the target if the animation has not moved us there.
-    window.setTimeout(() => {
-      if (Math.abs(scroller.scrollTop - target) > 2) scroller.scrollTo({ top: target });
-    }, 400);
+    jumpToCard(id);
   }
 
   return (

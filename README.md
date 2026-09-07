@@ -153,8 +153,12 @@ marked-up version in `example_html` / `notes_html`. Search runs against the plai
 text, so markup never turns up in results, and a row written before formatting
 existed still renders from its plain text.
 
-Highlight colours are translucent tints, so the same four read correctly on the
-light theme and on the near-black ones.
+Each highlight sets both a solid background and its own dark text colour, so it
+reads like a highlighter pen and its contrast is fixed rather than depending on
+the active theme — measured at 9.3:1 to 12.4:1, identical across all seven. A
+translucent tint was tried first and was the wrong call: over a near-black card
+it composites to a muddy mid-tone and dulls the words instead of lifting them.
+A figure inside a highlight drops its own background so the two do not fight.
 
 Search is a case-insensitive `LIKE` across name, example and notes, with `%` and
 `_` escaped so they match literally.

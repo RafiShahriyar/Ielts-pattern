@@ -707,36 +707,52 @@ mark.num {
   font-variant-numeric: tabular-nums;
 }
 
-/* Manual highlights. Each is a translucent tint rather than a solid fill, so the
-   same four colours stay legible on the light theme and the near-black ones. */
+/* Manual highlights read like a highlighter pen: a solid bright ground with its
+   own dark text colour. Both are set explicitly, so contrast is fixed rather
+   than depending on whichever theme is active — a translucent tint over a
+   near-black card composites to a muddy mid-tone and dulls the words instead of
+   lifting them. */
 mark.hl,
 mark.hl-yellow,
 mark.hl-green,
 mark.hl-blue,
 mark.hl-pink {
-  color: inherit;
-  padding: 0 2px;
+  padding: 0 3px;
   border-radius: 3px;
+  font-weight: 500;
 }
 
-mark.hl {
-  background: color-mix(in srgb, var(--accent) 26%, transparent);
-}
-
+/* `hl` predates the colour choice; treat it as yellow. */
+mark.hl,
 mark.hl-yellow {
-  background: color-mix(in srgb, #ffd54a 38%, transparent);
+  background: #ffd75e;
+  color: #241a00;
 }
 
 mark.hl-green {
-  background: color-mix(in srgb, #4ade80 34%, transparent);
+  background: #7fe3a4;
+  color: #052616;
 }
 
 mark.hl-blue {
-  background: color-mix(in srgb, #60a5fa 36%, transparent);
+  background: #9cc9ff;
+  color: #06203f;
 }
 
 mark.hl-pink {
-  background: color-mix(in srgb, #f472b6 34%, transparent);
+  background: #ffa8d2;
+  color: #3d0a26;
+}
+
+/* A figure inside a highlight keeps its bold weight but gives up its own
+   ground, which would otherwise fight the highlight behind it. */
+mark.hl mark.num,
+mark.hl-yellow mark.num,
+mark.hl-green mark.num,
+mark.hl-blue mark.num,
+mark.hl-pink mark.num {
+  background: transparent;
+  color: inherit;
 }
 
 mark.slot {
@@ -944,19 +960,19 @@ mark.slot {
 }
 
 .sel-swatch.hl-yellow {
-  background: color-mix(in srgb, #ffd54a 70%, transparent);
+  background: #ffd75e;
 }
 
 .sel-swatch.hl-green {
-  background: color-mix(in srgb, #4ade80 66%, transparent);
+  background: #7fe3a4;
 }
 
 .sel-swatch.hl-blue {
-  background: color-mix(in srgb, #60a5fa 68%, transparent);
+  background: #9cc9ff;
 }
 
 .sel-swatch.hl-pink {
-  background: color-mix(in srgb, #f472b6 66%, transparent);
+  background: #ffa8d2;
 }
 
 /* ---------- empty / error ---------- */

@@ -60,9 +60,10 @@ styling control. It was not used here.
 The stock File/Edit/View menu bar is removed; the app navigates through its own
 top bar instead.
 
-- **Patterns** — the searchable bank. Add, edit and delete entries, filter by
-  category, copy a template to the clipboard. Search and the category list live
-  in the left sidebar.
+- **Patterns** — the searchable bank. Each entry is a **name**, an **example**
+  sentence and **notes**. Add, edit and delete entries, filter by name, copy a
+  sentence to the clipboard. Search and the name list live in the left sidebar.
+  Example and notes take **bold**, underline and highlight.
 - **Writing** — a read-only reference of IELTS Writing question types: Task 1
   Academic (bar chart, line graph, pie chart, table, process, map, mixed),
   Task 2 essay types, General Training letters, and paragraph structures. The
@@ -122,6 +123,8 @@ them back on the next launch. That same table holds the theme setting.
 | `src/components/WritingView.tsx`  | Question-type reference                           |
 | `src/components/SettingsView.tsx` | Themes, storage, shortcuts                        |
 | `src/lib/highlight.tsx`    | Marks numbers/percentages in examples and `[slots]` in templates |
+| `src/lib/richtext.tsx`     | Sanitises editor output and renders stored markup        |
+| `src/components/RichTextEditor.tsx` | Contenteditable field with the format toolbar   |
 | `src/lib/theme.ts`         | Theme list and the `data-theme` switch                   |
 | `src/lib/slots.ts`         | DOM id for the sidebar portal target                     |
 
@@ -129,8 +132,20 @@ The renderer has no database access of its own: it can only call the methods
 exposed in `preload.js`, each of which round-trips to `electron/db.js`. Node
 integration is off and the renderer is sandboxed.
 
-Search is a case-insensitive `LIKE` across category, pattern, example and notes,
-with `%` and `_` escaped so they match literally.
+## Formatting
+
+Example and notes support bold (`Ctrl+B`), underline (`Ctrl+U`) and highlight
+(`Ctrl+Shift+H`, or the toolbar button). Each field is stored twice: the plain
+text in `example` / `notes`, and the marked-up version in `example_html` /
+`notes_html`. Search runs against the plain text, so markup never turns up in
+results, and a row written before formatting existed still renders from its
+plain text.
+
+Highlight is tinted from the theme accent with `color-mix`, so it follows
+whichever of the seven themes is active without needing its own token in each.
+
+Search is a case-insensitive `LIKE` across name, example and notes, with `%` and
+`_` escaped so they match literally.
 
 Navigation is client-side view switching rather than separate Next routes, so
 moving between pages is instant and keeps the single static `index.html` that

@@ -9,27 +9,25 @@ let db = null;
 const SEED = [
   {
     category: 'Overview / Leading figure',
-    pattern:
-      'Regarding [topic], just over half ([X]%) [verb], making it by far the largest category.',
     example:
       "Regarding graduates' destinations, just over half (52%) secured full-time employment after graduation, making it by far the largest category.",
     notes: 'Use for the single dominant figure. "By far the largest" only works when the gap to second place is wide.',
   },
   {
     category: 'Ranking',
-    pattern: '[Category] was the second most common outcome, accounting for [X]% of [group].',
     example: 'Part-time work was the second most common outcome, accounting for 15% of graduates.',
     notes: '"Accounting for" takes a percentage or a share, never a raw verb phrase.',
   },
   {
     category: 'Comparison',
-    pattern:
-      'By comparison, [X]% were [outcome], while equal proportions of [Y]% each [outcome2].',
     example:
       'By comparison, 12% were unemployed, while equal proportions of 8% each pursued further study or travelled abroad.',
     notes: 'Good for sweeping up the small remaining categories in one sentence. "Equal proportions of Y% each" handles ties.',
   },
 ];
+
+const COLUMNS =
+  'id, category, example, example_html, notes, notes_html, created_at, updated_at';
 
 function nowISO() {
   return new Date().toISOString();
@@ -48,13 +46,14 @@ function init(dbPath) {
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS patterns (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      category   TEXT NOT NULL DEFAULT '',
-      pattern    TEXT NOT NULL DEFAULT '',
-      example    TEXT NOT NULL DEFAULT '',
-      notes      TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      category     TEXT NOT NULL DEFAULT '',
+      example      TEXT NOT NULL DEFAULT '',
+      example_html TEXT NOT NULL DEFAULT '',
+      notes        TEXT NOT NULL DEFAULT '',
+      notes_html   TEXT NOT NULL DEFAULT '',
+      created_at   TEXT NOT NULL,
+      updated_at   TEXT NOT NULL
     );
 
     CREATE INDEX IF NOT EXISTS idx_patterns_category ON patterns(category);
@@ -65,8 +64,23 @@ function init(dbPath) {
     );
   `);
 
+  migrate();
   seedIfNeeded();
   return db;
+}
+
+// Brings an older database up to the current shape. The `pattern` column from
+// earlier versions is deliberately left in place rather than dropped: it is no
+// longer read or written, but dropping it would destroy entries the user wrote.
+function migrate() {
+  const columns = db.prepare('PRAGMA table_info(patterns)').all().map((c) => c.name);
+
+  if (!columns.includes('example_html')) {
+    db.exec(`ALTER TABLE patterns ADD COLUMN example_html TEXT NOT NULL DEFAULT ''`);
+  }
+  if (!columns.includes('notes_html')) {
+    db.exec(`ALTER TABLE patterns ADD COLUMN notes_html TEXT NOT NULL DEFAULT ''`);
+  }
 }
 
 // Seeds once ever, tracked in `meta`, so clearing every entry doesn't bring
@@ -76,8 +90,8 @@ function seedIfNeeded() {
   if (flag) return;
 
   const insert = db.prepare(`
-    INSERT INTO patterns (category, pattern, example, notes, created_at, updated_at)
-    VALUES (@category, @pattern, @example, @notes, @created_at, @updated_at)
+    INSERT INTO patterns (category, example, example_html, notes, notes_html, created_at, updated_at)
+    VALUES (@category, @example, '', @notes, '', @created_at, @updated_at)
   `);
 
   const run = db.transaction((rows) => {
@@ -106,9 +120,9 @@ function list(opts = {}) {
 
   if (search) {
     params.q = `%${escapeLike(search.toLowerCase())}%`;
+    // Matches the plain-text copies, so formatting markup never affects a search.
     where.push(`(
       LOWER(category) LIKE @q ESCAPE '\\' OR
-      LOWER(pattern)  LIKE @q ESCAPE '\\' OR
       LOWER(example)  LIKE @q ESCAPE '\\' OR
       LOWER(notes)    LIKE @q ESCAPE '\\'
     )`);
@@ -120,7 +134,7 @@ function list(opts = {}) {
   }
 
   const sql = `
-    SELECT * FROM patterns
+    SELECT ${COLUMNS} FROM patterns
     ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
     ORDER BY category COLLATE NOCASE ASC, id ASC
   `;
@@ -129,27 +143,30 @@ function list(opts = {}) {
 }
 
 function get(id) {
-  return db.prepare('SELECT * FROM patterns WHERE id = ?').get(id);
+  return db.prepare(`SELECT ${COLUMNS} FROM patterns WHERE id = ?`).get(id);
 }
 
 function normalize(input = {}) {
   return {
     category: String(input.category ?? '').trim(),
-    pattern: String(input.pattern ?? '').trim(),
     example: String(input.example ?? '').trim(),
+    example_html: String(input.example_html ?? '').trim(),
     notes: String(input.notes ?? '').trim(),
+    notes_html: String(input.notes_html ?? '').trim(),
   };
 }
 
 function create(input) {
   const data = normalize(input);
-  if (!data.pattern) throw new Error('A sentence pattern is required.');
+  if (!data.example) throw new Error('An example sentence is required.');
 
   const ts = nowISO();
   const info = db
     .prepare(
-      `INSERT INTO patterns (category, pattern, example, notes, created_at, updated_at)
-       VALUES (@category, @pattern, @example, @notes, @created_at, @updated_at)`
+      `INSERT INTO patterns
+         (category, example, example_html, notes, notes_html, created_at, updated_at)
+       VALUES
+         (@category, @example, @example_html, @notes, @notes_html, @created_at, @updated_at)`
     )
     .run({ ...data, created_at: ts, updated_at: ts });
 
@@ -158,15 +175,16 @@ function create(input) {
 
 function update(id, input) {
   const data = normalize(input);
-  if (!data.pattern) throw new Error('A sentence pattern is required.');
+  if (!data.example) throw new Error('An example sentence is required.');
   if (!get(id)) throw new Error(`No entry with id ${id}.`);
 
   db.prepare(
     `UPDATE patterns
         SET category = @category,
-            pattern = @pattern,
             example = @example,
+            example_html = @example_html,
             notes = @notes,
+            notes_html = @notes_html,
             updated_at = @updated_at
       WHERE id = @id`
   ).run({ ...data, id, updated_at: nowISO() });

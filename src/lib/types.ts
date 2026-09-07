@@ -3,14 +3,20 @@ import type { ThemeId } from './theme';
 export interface Pattern {
   id: number;
   category: string;
-  pattern: string;
+  /** Plain text — what search matches against. */
   example: string;
+  /** The same sentence with bold/underline/highlight markup, if any. */
+  example_html: string;
   notes: string;
+  notes_html: string;
   created_at: string;
   updated_at: string;
 }
 
-export type PatternInput = Pick<Pattern, 'category' | 'pattern' | 'example' | 'notes'>;
+export type PatternInput = Pick<
+  Pattern,
+  'category' | 'example' | 'example_html' | 'notes' | 'notes_html'
+>;
 
 export interface PatternApi {
   /** Resolved in preload before first paint, so it is a value rather than a promise. */

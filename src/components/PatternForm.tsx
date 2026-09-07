@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import RichTextEditor from '@/components/RichTextEditor';
+import { richToText, sanitizeRich } from '@/lib/richtext';
 import type { Pattern, PatternInput } from '@/lib/types';
 
 interface Props {
@@ -10,11 +12,18 @@ interface Props {
   onCancel: () => void;
 }
 
+/** Legacy rows have plain text only; show that as the editor's starting markup. */
+function startingHtml(html: string, plain: string): string {
+  if (html) return html;
+  const escaped = document.createElement('div');
+  escaped.textContent = plain;
+  return escaped.innerHTML;
+}
+
 export default function PatternForm({ initial, categories, onSave, onCancel }: Props) {
   const [category, setCategory] = useState(initial?.category ?? '');
-  const [pattern, setPattern] = useState(initial?.pattern ?? '');
-  const [example, setExample] = useState(initial?.example ?? '');
-  const [notes, setNotes] = useState(initial?.notes ?? '');
+  const [exampleHtml, setExampleHtml] = useState('');
+  const [notesHtml, setNotesHtml] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const firstField = useRef<HTMLInputElement>(null);
@@ -35,15 +44,22 @@ export default function PatternForm({ initial, categories, onSave, onCancel }: P
     e?.preventDefault();
     if (saving) return;
 
-    if (!pattern.trim()) {
-      setError('A sentence pattern is required.');
+    const example = richToText(exampleHtml);
+    if (!example) {
+      setError('An example sentence is required.');
       return;
     }
 
     setSaving(true);
     setError('');
     try {
-      await onSave({ category, pattern, example, notes });
+      await onSave({
+        category,
+        example,
+        example_html: sanitizeRich(exampleHtml),
+        notes: richToText(notesHtml),
+        notes_html: sanitizeRich(notesHtml),
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setSaving(false);
@@ -59,12 +75,12 @@ export default function PatternForm({ initial, categories, onSave, onCancel }: P
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submit();
         }}
       >
-        <h2>{initial ? 'Edit pattern' : 'New pattern'}</h2>
+        <h2>{initial ? 'Edit entry' : 'New entry'}</h2>
 
         {error && <div className="banner">{error}</div>}
 
         <div className="form-field">
-          <label htmlFor="f-category">Category</label>
+          <label htmlFor="f-category">Name</label>
           <input
             id="f-category"
             ref={firstField}
@@ -81,40 +97,26 @@ export default function PatternForm({ initial, categories, onSave, onCancel }: P
         </div>
 
         <div className="form-field">
-          <label htmlFor="f-pattern">
-            Sentence pattern <span className="hint">— use [brackets] for the slots you swap out</span>
-          </label>
-          <textarea
-            id="f-pattern"
-            className="mono"
-            rows={3}
-            value={pattern}
-            onChange={(e) => setPattern(e.target.value)}
-            placeholder="Regarding [topic], just over half ([X]%) [verb], making it by far the largest category."
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="f-example">
+          <label>
             Example <span className="hint">— your corrected sentence</span>
           </label>
-          <textarea
-            id="f-example"
-            rows={3}
-            value={example}
-            onChange={(e) => setExample(e.target.value)}
-            placeholder="Regarding graduates' destinations, just over half (52%) secured full-time employment…"
+          <RichTextEditor
+            ariaLabel="Example sentence"
+            initialHtml={startingHtml(initial?.example_html ?? '', initial?.example ?? '')}
+            onChange={setExampleHtml}
+            placeholder="Regarding graduates' destinations, just over half (52%) secured…"
+            minHeight={84}
           />
         </div>
 
         <div className="form-field">
-          <label htmlFor="f-notes">Notes</label>
-          <textarea
-            id="f-notes"
-            rows={2}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+          <label>Notes</label>
+          <RichTextEditor
+            ariaLabel="Notes"
+            initialHtml={startingHtml(initial?.notes_html ?? '', initial?.notes ?? '')}
+            onChange={setNotesHtml}
             placeholder="When to use it, what to watch out for…"
+            minHeight={62}
           />
         </div>
 
@@ -123,7 +125,7 @@ export default function PatternForm({ initial, categories, onSave, onCancel }: P
             Cancel
           </button>
           <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Saving…' : initial ? 'Save changes' : 'Add pattern'}
+            {saving ? 'Saving…' : initial ? 'Save changes' : 'Add entry'}
           </button>
         </div>
       </form>

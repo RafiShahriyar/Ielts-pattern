@@ -91,6 +91,20 @@ nested scroller, and its smooth animation is skipped outright when the window is
 occluded, so the jump silently does nothing. `jumpTo` in `WritingView` measures
 against the container and snaps to the target if the animation has not landed.
 
+**9. Entry text is stored twice.** `example`/`notes` hold plain text and
+`example_html`/`notes_html` the marked-up version. Search matches the plain
+columns so markup never leaks into results; the card falls back to the plain
+column when the html one is empty, which is how pre-formatting rows still
+render. Never render stored markup with `dangerouslySetInnerHTML` —
+`renderRich` in `src/lib/richtext.tsx` builds React elements from a tag
+allowlist and drops every attribute, which is what keeps the content inert.
+
+**10. The old `pattern` column is still there.** Entries used to carry a
+template alongside the example. The field was removed from the UI and the
+queries, but `migrate()` deliberately does not `DROP` the column, because real
+entries were written into it. `COLUMNS` in `db.js` lists what is selected, so
+the dead column never reaches the renderer.
+
 ## Conventions
 
 - **All SQL lives in `electron/db.js`.** Nothing else touches the database.
@@ -105,8 +119,8 @@ against the container and snaps to the target if the animation has not landed.
 - **Adding a page** is a component plus one entry in the `TABS` array in
   `src/components/NavBar.tsx`. Navigation is client-side view switching, not
   Next routes, so the static export stays a single `index.html`.
-- Search is a case-insensitive `LIKE` across every field, with `%` and `_`
-  escaped so they match literally.
+- Search is a case-insensitive `LIKE` across the plain-text columns, with `%`
+  and `_` escaped so they match literally.
 - The three starter entries are seeded on first run only; the `meta` table
   records that, so deleting every entry does not bring them back. `meta` also
   holds the theme.
